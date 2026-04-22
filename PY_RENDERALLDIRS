@@ -1,0 +1,77 @@
+# PUT THIS IN SCRIPT TAB IN BLENDER
+import bpy
+import math
+
+scene = bpy.context.scene
+
+# ------------SETTINGS---------------
+start = 0 # START ANIM FRAME
+end = 7 # END ANIM FRAME
+obj = bpy.data.objects["nodes_0"]
+
+output_path = "C:/renders/pikmin/"
+
+
+# south
+obj.rotation_euler.z = math.radians(0)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}south_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# southeast
+obj.rotation_euler.z = math.radians(45)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}southeast_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# southwest
+obj.rotation_euler.z = math.radians(-45)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}southwest_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# east
+obj.rotation_euler.z = math.radians(90)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}east_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# west
+obj.rotation_euler.z = math.radians(-90)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}west_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# north
+obj.rotation_euler.z = math.radians(180)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}north_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# northeast
+obj.rotation_euler.z = math.radians(135)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}northeast_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
+    
+# northwest
+obj.rotation_euler.z = math.radians(225)
+
+for f in range(start, end + 1):
+    scene.frame_set(f)
+    bpy.context.scene.render.filepath = f"{output_path}northwest_{f:03d}.png"
+    bpy.ops.render.render(write_still=True)
