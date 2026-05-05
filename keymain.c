@@ -13,6 +13,7 @@ void OnKeyPressed(int key) {
 
 u32 WaitForKeyPress()
 {
+   iprintf("\n*\n\n");
     while (1)
     {
         swiWaitForVBlank();
@@ -134,7 +135,18 @@ void BeginGame()
 {
    consoleClear();
 
-   printLn("game is starting\n");
+   iprintf("You wake up in your house (press A to continue)\n");
+   WaitForKeyPress();
+   iprintf("It is currently MORNING\n");
+   iprintf("You are wearing NOTHING\n");
+   WaitForKeyPress();
+   iprintf("\nIt is a school day, but you have about 1 hour before you have to leave\n\n");
+   iprintf("You may want to look around before leaving, you never know what may happen or what may come in handy\n\n");
+   WaitForKeyPress();
+   while (1)
+   {
+      WaitForKeyPress();
+   }
 }
 
 void DoIntro()
@@ -178,7 +190,6 @@ while (true) // Ask for name
    playerName, choices[playerType]);
 
    int startGame = WaitForMenuChoiceYesNo(msg);
-   WaitForKeyPress();
    if (startGame == 0)
    {
       // Start game
@@ -206,6 +217,7 @@ int main(void)  {
     printLn("Also you can play with others on a local online network if you like\n");
     printLn("Anyway lets get you registered as an player\n");
     
+    consoleClear();
     DoIntro();
 
 
