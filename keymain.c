@@ -20,7 +20,7 @@ char clothing[15] = "NOTHING";
 char inventory[15] = "NOTHING";
 
 // parsing things
-const char* fillerWords[] = { "the", "a", "an", "on", "at", "to", "from", "in", "with", "for" };
+const char* fillerWords[] = { "the", "have", "has", "got", "know", "knows", "about", "a", "an", "on", "at", "to", "from", "in", "with", "for" };
 
 //ItemID inventory[10];
 
@@ -181,10 +181,18 @@ void giveStatusInfo()
    iprintf("You have %s\n", inventory);
 }
 
+void handleSuicide()
+{
+   iprintf("You don't have anything you can use to do that.\n");
+   iprintf("(Hint: try using an item, jumping from a high place, etc.)\n");
+}
+
+
 void handleKill(char* target)
 {
    if (target == NULL) iprintf("Kill who, with what?\n");
-   else if (strcmp(target, "self") == 0 || strcmp(target, "myself") == 0 || strcmp(target, "you") == 0 ) iprintf("Not in my christian minecraft server.\n");
+   else if (strcmp(target, "self") == 0 || strcmp(target, "myself") == 0) handleSuicide();
+   else iprintf("Not in my christian minecraft server.\n");
 }
 
 void handleHelp(char* target)
@@ -204,14 +212,38 @@ void handleAsk(char* target)
    else iprintf("That person isn't here.\n");
 }
 
+void handleUse(char* noun, char* object)
+{
+   if (noun == NULL) iprintf("Use what?\n");
+   else if (strcmp(inventory, object))
+   {
+      if (object == NULL) iprintf("You try using the %s.\nBut nothing happens.\n", noun);
+      else iprintf("You try using the %s on %s.\nBut nothing happens.\n", noun, object);
+      
+   }
+}
+
+
 void parseCommand(char* input) {
     char* verb = strtok(input, " ");
     char* noun = strtok(NULL, " "); // Get the second word
+    //char* object = strtok(NULL, " "); // Get the third word if exists
 
     if (verb == NULL) return;
    
     if (strcmp(verb, "go") == 0) {
         //handleMove(noun);
+    }
+    else if (strcmp(verb, "use") == 0) {
+        handleUse(noun);
+    }
+    else if (strcmp(verb, "become") == 0 || strcmp(verb, "transform") == 0)
+    {
+      iprintf("There might be a way to do that, but you don't know how.\n");
+    }
+    else if (strcmp(verb, "sleep") == 0)
+    {
+      iprintf("As if anyone could sleep in a place like this.\n");
     }
     else if (strcmp(verb, "ask") == 0)
     {
@@ -223,7 +255,7 @@ void parseCommand(char* input) {
     }
     else if (strcmp(verb, "kill") == 0 || strcmp(verb, "attack") == 0 || strcmp(verb, "fight") == 0)
     {
-      iprintf("USING what?\n");
+      handleKill(noun);
     }
     else if (strcmp(verb, "flee") == 0 || strcmp(verb, "run") == 0)
     {
@@ -233,9 +265,9 @@ void parseCommand(char* input) {
     {
       handleHelp(noun);
     }
-    else if (strcmp(verb, "suicide") == 0)
+    else if (strcmp(verb, "suicide") == 0 || strcmp(verb, "die") == 0)
     {
-      iprintf("By means of what?\n");
+      handleSuicide();
     }
     else if (strcmp(verb, "look") == 0) {
         //iprintf("%s\n", WorldMap[currentRoom].description);
