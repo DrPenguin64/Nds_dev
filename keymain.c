@@ -8,8 +8,21 @@ PrintConsole bottomScreen;
 Keyboard _keyboard;
 
 // player data
+const char* typeGuide[] = {
+   "Speed",
+   "Fly",
+   "Power"
+   };
 char playerName[256];
 int playerType = -1; // 0 = speed, 1 = fly, 2 = power
+char timeOfDay[15] = "MORNING";
+char clothing[15] = "NOTHING";
+char inventory[15] = "NOTHING";
+
+// parsing things
+const char* fillerWords[] = { "the", "a", "an", "on", "at", "to", "from", "in", "with", "for" };
+
+//ItemID inventory[10];
 
 void OnKeyPressed(int key) {
    if(key > 0){
@@ -33,6 +46,7 @@ u32 WaitForKeyPress()
             return keys;
     }
 }
+
 
 // Assumes 256 chars limit
 void printLn(char* line)
@@ -65,14 +79,16 @@ void readLine(char* _input)
    //fflush(stdin);
    //swiWaitForVBlank();
    iscanf(" %255[^\n]", _input);
-   consoleSelect(&topScreen);
+   //iprintf("\n");
+   //consoleSelect(&topScreen);
+   while(keysHeld()) { scanKeys(); swiWaitForVBlank(); }
    //keyboardHide();
 }
 
 // warning: this will clear the console
 int WaitForMenuChoice(const char* prompt, const char* options[], int count)
 {
-   //keyboardHide();
+   keyboardHide();
    int selected = 0;
    consoleSelect(&topScreen);
    iprintf("%s\n\n", prompt);
@@ -157,16 +173,89 @@ int WaitForChoice(const char* prompt, const char* options[], int count)
    }
 }
 
+void giveStatusInfo()
+{
+   iprintf("You are %s the %s-type %s\n", playerName, typeGuide[playerType], "hedgehog");
+   iprintf("It is currently %s\n", timeOfDay);
+   iprintf("You are wearing %s\n", clothing);
+   iprintf("You have %s\n", inventory);
+}
+
+void handleKill(char* target)
+{
+   if (target == NULL) iprintf("Kill who, with what?\n");
+   else if (strcmp(target, "self") == 0 || strcmp(target, "myself") == 0 || strcmp(target, "you") == 0 ) iprintf("Not in my christian minecraft server.\n");
+}
+
+void handleHelp(char* target)
+{
+   if (target == NULL || strcmp(target, "") == 0 || strcmp(target, "me") == 0) iprintf("And why should I?\n");
+   else iprintf("That person isn't here.\n");
+}
+
+void handleFuck(char* target)
+{
+   iprintf("Not in my christian minecraft server, you won't.\n");
+}
+
+void handleAsk(char* target)
+{
+   if (target == NULL) iprintf("Ask who?\n");
+   else iprintf("That person isn't here.\n");
+}
+
+void parseCommand(char* input) {
+    char* verb = strtok(input, " ");
+    char* noun = strtok(NULL, " "); // Get the second word
+
+    if (verb == NULL) return;
+   
+    if (strcmp(verb, "go") == 0) {
+        //handleMove(noun);
+    }
+    else if (strcmp(verb, "ask") == 0)
+    {
+      handleAsk(noun);
+    }
+    else if (strcmp(verb, "fuck") == 0 || strcmp(verb, "sex") == 0 )
+    {
+      handleFuck(noun);
+    }
+    else if (strcmp(verb, "kill") == 0 || strcmp(verb, "attack") == 0 || strcmp(verb, "fight") == 0)
+    {
+      iprintf("USING what?\n");
+    }
+    else if (strcmp(verb, "flee") == 0 || strcmp(verb, "run") == 0)
+    {
+      iprintf("To where?\n");
+    }
+    else if (strcmp(verb, "help") == 0)
+    {
+      handleHelp(noun);
+    }
+    else if (strcmp(verb, "suicide") == 0)
+    {
+      iprintf("By means of what?\n");
+    }
+    else if (strcmp(verb, "look") == 0) {
+        //iprintf("%s\n", WorldMap[currentRoom].description);
+    }
+    else if (strcmp(verb, "take") == 0) {
+        // handleTake(noun);
+    }
+    else {
+        iprintf("I don't know how to '%s'.\n", verb);
+    }
+}
 
 void BeginGame()
 {
    consoleClear();
-
+   iprintf("----------------------------------\n");
    iprintf("You wake up in your house (press A to continue)\n");
    WaitForKeyPress();
    consoleClear();
-   iprintf("It is currently MORNING\n");
-   iprintf("You are wearing NOTHING\n");
+   giveStatusInfo();
    WaitForKeyPress();
    iprintf("\nIt is a school day, but you have about 1 hour before you have to leave\n\n");
    iprintf("You may want to look around before leaving, you never know what may happen or what may come in handy\n\n");
@@ -179,17 +268,26 @@ void BeginGame()
    {
       readLine(lastInput);
       iprintf("You said: %s\n", lastInput);
-
+      parseCommand(lastInput);
+      /*
       if (strcmp(lastInput, "repeat") == 0)
       {
          consoleClear();
-         iprintf("It is currently MORNING\n");
-         iprintf("You are wearing NOTHING\n");
+         giveStatusInfo();
          iprintf("\nIt is a school day, but you have about 1 hour before you have to leave\n\n");
          iprintf("You may want to look around before leaving, you never know what may happen or what may come in handy\n\n");
       }
+      else if (strcmp(lastInput, "help") == 0)
+      {
+         iprintf("Tough luck buddy.\n");
+      }
+      else if (strcmp(lastInput, "suicide") == 0)
+      {
+         iprintf("How? Be specific.\n");
+      }
+      */
       memset(lastInput, 0, sizeof(lastInput));
-      //WaitForKeyPress();
+      WaitForKeyPress();
    }
 }
 
@@ -207,22 +305,24 @@ while (true) // Ask for name
 
       consoleClear();
       iprintf("\nYour name is %s\n\n", playerName);
-      iprintf("Is this ok? (A for yes, B for no)\n");
+      iprintf("Is this ok? \n(A for yes, B for no)\n");
       // wait for button press
       u32 key = WaitForKeyPress();
       if (key & KEY_A) { // A pressed
          break;
       }
    }
-   iprintf("Nice!!! %s\n", playerName);
-   WaitForKeyPress();
+   consoleClear();
+   iprintf("%s? Nice!!!\n", playerName);
+   //WaitForKeyPress();
+   
    const char* choices[] = {
    "Speed",
    "Fly",
    "Power"
    };
    playerType = WaitForMenuChoice(
-   "Now choose your type",
+   "Now choose your type!",
    choices,
    3
    );
@@ -232,13 +332,15 @@ while (true) // Ask for name
    consoleClear();
 
    char msg[256];
-   snprintf(msg, sizeof(msg), "Your name is %s and your type is %s\nIs this ok?",
+   snprintf(msg, sizeof(msg), "Your name is %s and your type is %s\n------\nIs this ok?",
    playerName, choices[playerType]);
 
    int startGame = WaitForMenuChoiceYesNo(msg);
    if (startGame == 0)
    {
       // Start game
+      iprintf("GAME START!\n");
+      WaitForKeyPress();
       BeginGame();
    }
    else {
@@ -258,6 +360,7 @@ int main(void)  {
 	consoleInit(&topScreen, 3,BgType_Text4bpp, BgSize_T_256x256, 31, 0, true, true);
 	consoleInit(&bottomScreen, 3,BgType_Text4bpp, BgSize_T_256x256, 29, 0, false, true);
 
+   /*
    consoleSelect(&topScreen);
    iprintf("This goes to TOP screen\n");
    WaitForKeyPress();
@@ -266,8 +369,10 @@ int main(void)  {
    consoleSelect(&bottomScreen);
    iprintf("This goes to BOTTOM screen\n");
    WaitForKeyPress();
+   */
    
    Keyboard *kbd = 	keyboardInit(&_keyboard, 1,BgType_Text4bpp, BgSize_T_256x256, 20, 4, false, true); // hold pointer to keyboard
+   kbd->scrollSpeed = 0;
    kbd->OnKeyPressed = OnKeyPressed; // register callback for on key press
    
 
@@ -279,10 +384,10 @@ int main(void)  {
    consoleSelect(&topScreen);
    consoleClear();
    printLn("Welcome to Sonic RPG (press A to continue)\n");
-   printLn("You can be anyone and do anything in this game\n");
+   printLn("You can be anyone and do \nanything in this game\n");
    printLn("Well within reason anyway\n");
-   printLn("Also you can play with others on a local online network if you like\n");
-   printLn("Anyway lets get you registered as an player\n");
+   printLn("Also you can play with others \non a local online network if you\nlike\n");
+   printLn("Anyway lets get you registered\nas an player\n");
 
    consoleClear();
    DoIntro();
